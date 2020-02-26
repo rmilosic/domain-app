@@ -3,7 +3,6 @@ set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     
-    CREATE SCHEMA public;
 
     DROP TABLE IF EXISTS public.domain CASCADE;
     DROP TABLE  IF EXISTS public.domain_flag CASCADE;
@@ -20,7 +19,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
         crdate TIMESTAMP WITHOUT TIME ZONE DEFAULT (Now() AT TIME ZONE 'utc'),
         erdate TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL
     );
-    CREATE INDEX "domain_pkey" ON public.domain USING btree (id);
 
 
     CREATE TYPE public.flag_type AS ENUM ('EXPIRED', 'OUTZONE', 'DELETE_CANDIDATE');
@@ -34,19 +32,20 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
         valid_to TIMESTAMP WITHOUT TIME ZONE
     );
 
-    CREATE INDEX "domain_flag_pkey" ON public.domain_flag USING btree (id);
-
     ALTER TABLE public.domain_flag
         ADD CONSTRAINT domain_flag_domain_id_fkey FOREIGN KEY (domain_id) REFERENCES domain (id);
 
 EOSQL
 
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB"
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
 
-\copy public.domain_flag(id, domain_id, flag, valid_from, valid_to) FROM './domain_flag_table.csv' DELIMITER ',' CSV HEADER
+\copy public.domain(id, fqdn, crdate, erdate) FROM '/docker-entrypoint-initdb.d/domain_table.csv' DELIMITER ',' CSV HEADER
 
-\copy public.domain(id, fqdn, crdate, erdate) FROM './domain_table.csv' DELIMITER ',' CSV HEADER
+\copy public.domain_flag(id, domain_id, flag, valid_from, valid_to) FROM '/docker-entrypoint-initdb.d/domain_flag_table.csv' DELIMITER ',' CSV HEADER
+
 
 SELECT setval('domain_id_seq', (SELECT MAX(id) from "domain"));
 
 SELECT setval('domain_flag_id_seq', (SELECT MAX(id) from "domain_flag"));
+
+EOSQL

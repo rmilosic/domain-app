@@ -1,6 +1,8 @@
 CREATE DATABASE postgres;
 \c postgres;
 
+
+
 CREATE SCHEMA public;
 
 DROP TABLE IF EXISTS public.domain CASCADE;

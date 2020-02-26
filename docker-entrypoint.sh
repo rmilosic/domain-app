@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# fake initial migration
+python manage.py migrate --fake-initial
+
 # Apply database migrations
 echo "Apply database migrations"
 python manage.py migrate

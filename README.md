@@ -18,8 +18,21 @@ Scripts for db setup are located in `./sql_commands/` folder
 - `query_once_expired_or_outzone.sql`
 - `query_active_domains.sql`
 
+- `init_db.sh` (script for docker postgres container db initialization)
+
 
 ## Django part
 
-App name: `domain_app`
 
+### Get started
+
+Requirements: installed Docker
+
+Clone repository
+`git clone https://github.com/rmilosic/domain-app.git`
+
+Run docker-compose comand from the root folder
+`docker-compose up --build -d web`
+
+To create a user for the admin, run the following
+`docker exec -it domain_app_web_1 bash` and follow the prompt to input user details
