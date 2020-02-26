@@ -36,3 +36,6 @@ Run docker-compose comand from the root folder
 
 To create a user for the admin, run the following
 `docker exec -it domain_app_web_1 bash` and follow the prompt to input user details
+
+
+Server is running at `localhost:8000` and admin view is available at path `/admin/`
