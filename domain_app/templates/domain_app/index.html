@@ -1,0 +1,44 @@
+{% extends "domain_app/base_generic.html" %}
+
+{% block title %}Index - Domain List{% endblock %}
+
+{% block content %}
+<h1>{{ section.title }}</h1>
+
+
+<h2>
+  Seznam existujicich domen
+</h2>
+
+
+<table class="table table-striped">
+  <tr>
+    <th>FQDN</th>
+    <th>Created at</th>
+    <th>Active flags</th>
+  </tr>
+      {% if domains %}
+        {% for domain in domains %}
+          <tr>
+            <td>
+              <a href="{% url 'detail' domain.id %}">{{ domain.fqdn }}</a>
+            </td>
+            <td>
+                {{domain.crdate}}
+            </td>
+            <td>
+              {% for flag_item in domain.domainflag.all %}
+                <mark>{{flag_item.flag}}</mark>
+              {% endfor %}
+              
+            </td>
+          </tr>
+        {% endfor %}
+      {% else %}
+
+      <tr>No active domains</tr>
+      
+      {% endif %}
+</table>
+
+{% endblock %}

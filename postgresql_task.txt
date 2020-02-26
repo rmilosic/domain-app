@@ -1,0 +1,100 @@
+---
+--- Napiste skript (sql) pro vytvoreni databazoveho schematu podle popisu nize
+--- a naplneni tabulky vzorovymi daty (data dodana v csv)
+--- (databazovy stroj - postgresql)
+---
+
+---
+--- tabulka 'domain' reprezentujici entitu domeny
+---   * fqdn - plne specifikovane domenove jmeno
+---   * crdate - datum a cas vytvoreni
+---   * erdate - datum a cas zruseni
+---
+ Column |            Type             |                      Modifiers
+--------+-----------------------------+-----------------------------------------------------
+ id     | integer                     | not null default nextval('domain_id_seq'::regclass)
+ fqdn   | character varying(255)      | not null
+ crdate | timestamp without time zone | not null default now()
+ erdate | timestamp without time zone |
+
+Indexes:
+    "domain_pkey" PRIMARY KEY, btree (id)
+
+Referenced by:
+    TABLE "domain_flag" CONSTRAINT "domain_flag_domain_id_fkey" FOREIGN KEY (domain_id) REFERENCES domain(id)
+
+
+---
+--- priznaky, ktere lze domene priradit (vyctovy typ)
+---  * EXPIRED - domena je expirovana
+---  * OUTZONE - domena neni generovana do zony
+---  * DELETE_CANDIDATE - domena je urcena ke smazani
+---
+
+ Schema |   Name    | Internal name | Size |         Elements         | Description
+--------+-----------+---------------+------+--------------------------+-------------
+ public | flag_type | flag_type     | 4    | EXPIRED                 +|
+        |           |               |      | OUTZONE                 +|
+        |           |               |      | DELETE_CANDIDATE         |
+(1 row)	
+
+
+---
+--- tabulka 'domain_flag', ktera reprezentuje prirazene priznaky (flags) k
+--- domene v case. pro jednoduchost prepokladejme, ze jsou priznaky na sobe
+--- nezavisle a zaznamy pro jednu domenu a jeden priznak se mohou prekryvat v case
+---   * domain_id - FK na domenu
+---   * flag - priznak
+---   * datum a cas platnosti je dan intervalem <valid_from, valid_to), kde
+---     valid_to null hodnota znaci aktualne neomezenou horni hranici platnosti priznaku
+---
+
+   Column   |            Type             |                        Modifiers
+------------+-----------------------------+----------------------------------------------------------
+ id         | integer                     | not null default nextval('domain_flag_id_seq'::regclass)
+ domain_id  | integer                     | not null
+ flag       | flag_type                   | not null
+ valid_from | timestamp without time zone | not null
+ valid_to   | timestamp without time zone |
+Indexes:
+    "domain_flag_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "domain_flag_domain_id_fkey" FOREIGN KEY (domain_id) REFERENCES domain(id)
+
+
+
+ id | fqdn |       crdate        |       erdate
+----+------+---------------------+---------------------
+  1 | a.cz | 2014-01-01 00:00:00 | [null]
+  2 | b.cz | 2014-02-01 00:00:00 | [null]
+  3 | c.cz | 2014-03-01 00:00:00 | [null]
+  4 | d.cz | 2014-04-01 00:00:00 | [null]
+  5 | e.cz | 2013-01-01 00:00:00 | 2015-03-01 00:00:00
+(5 rows)
+
+
+ id | domain_id |       flag       |     valid_from      |      valid_to
+----+-----------+------------------+---------------------+---------------------
+  1 |         1 | EXPIRED          | 2015-01-01 00:00:00 | 2015-01-16 00:00:00
+  2 |         2 | EXPIRED          | 2015-02-01 00:00:00 | 2015-03-11 00:00:00
+  3 |         2 | OUTZONE          | 2015-03-01 00:00:00 | 2015-03-11 00:00:00
+  4 |         5 | EXPIRED          | 2014-01-01 00:00:00 | 2014-02-01 00:00:00
+  5 |         5 | EXPIRED          | 2015-01-01 00:00:00 | [null]
+  6 |         5 | OUTZONE          | 2015-02-01 00:00:00 | [null]
+  7 |         5 | DELETE_CANDIDATE | 2015-03-01 00:00:00 | [null]
+(7 rows)
+
+---
+--- Napiste dotaz, ktery vybere domeny, ktere nejsou smazane a aktualne nemaji
+--- aktivni priznak expirace (EXPIRED flag)
+---
+
+---
+--- Napiste dotaz, ktery vybere domeny, ktere mely nekdy v historii priznaky
+--- EXPIRED a OUTZONE
+---
+
+---
+--- Pro dane priklady predpokladejme, ze vsechny casove znacky jsou v databazi v UTC a databazovy stroj ma
+--- nastaven vychozi casovou zonu pro klienta take na UTC
+---

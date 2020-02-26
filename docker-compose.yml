@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  db:
+    build: ./db/
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+  web:
+    restart: always
+    build: .
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

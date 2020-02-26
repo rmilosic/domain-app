@@ -1,0 +1,7 @@
+- Nad databází z předchozí úlohy vytvořte Django modely a aplikaci.
+  - Pro databázové modely aktivujte administrační rozhraní (Django admin).
+  - Vytvořte view pro detail domény, kde se vypíší data o doméně a její právě aktivní flagy (pozor, flagy mohou být plánovány i do budoucnosti).
+  - Vytvořte view pro seznam existujících domén, u každé domény bude vypsané její FQDN a seznam právě aktivních flagů. FQDN bude zároveň linkem na detail domény.
+  - Do modelu pro doménu přidejte nepovinnou položku exdate (Expiration date) typu datum a vytvořte pro ni migraci.
+  - Vytvořte management příkaz (manage.py set_expiration_flag), který bude určen pro pouštění cron daemonem každý den. Tento příkaz nastaví flag EXPIRED všem doménám, které mají Expiration date tento den.
+  - Napište testy pro view pro detail domény, seznam existujících domén a příkaz set_expiration_flag.

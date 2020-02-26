@@ -1,0 +1,50 @@
+{% extends "domain_app/base_generic.html" %}
+
+{% block title %}Domain detail{% endblock %}
+
+{% block content %}
+<h1>Domain detail</h1>
+
+<table class="table table-striped">
+  <tr>
+    <th>FQDN</th>
+    <th>Created at</th>
+    <th>Deleted at</th>
+  </tr>
+      <tr>
+        <td>
+          {{domain.fqdn}}
+        </td>
+        <td>
+          {{domain.crdate}}
+        </td>
+        <td>
+          {{domain.erdate}}
+        </td>
+  </tr>
+</table>
+
+<h2>Active flags</h2>
+
+<table class="table table-striped">
+  <tr>
+    <th>Flag</th>
+    <th>Valid from</th>
+    <th>Valid to</th>
+  </tr>
+    {% for flag_item in flags %}
+      <tr>
+        <td>
+          {{flag_item.flag}}
+        </td>
+        <td>
+          {{flag_item.valid_from}}
+        </td>
+        <td>
+          {{flag_item.valid_to}}
+        </td>
+      </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
