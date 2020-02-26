@@ -1,3 +1,4 @@
+CREATE DATABASE postgres;
 \c postgres;
 
 CREATE SCHEMA public;
